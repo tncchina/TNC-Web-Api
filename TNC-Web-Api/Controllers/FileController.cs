@@ -33,10 +33,10 @@ namespace TNC_Web_Api.Controllers
             try
             {
                 var file = provider.Contents[0];
-                var nameArr = file.Headers.ContentDisposition.FileName.Trim('\"').Split('\\');
+                var nameArr = file.Headers.ContentDisposition.Name.Trim('\"').Split('\\');
                 var fileName = nameArr[nameArr.Length - 1];
                 var buffer = await file.ReadAsByteArrayAsync();
-                string filePath = "D:\\Projects\\TNC-Web-Api\\TNC-Web-Api\\Content\\photos\\" + fileName;
+                string filePath = "C:\\Users\\zhulian\\Projects\\TNC-Web-Api\\resources\\" + fileName;
                 File.WriteAllBytes(filePath, buffer);
                 Uri uri = this.UploadToAzure(fileName, buffer);
                 return Request.CreateResponse(HttpStatusCode.OK, "Upload succeed, photot azure link: " + uri.ToString());
