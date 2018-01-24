@@ -11,42 +11,43 @@ using Microsoft.Azure;
 using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using System.Web.Http.Cors;
+using System.Web.Mvc;
+using TNC_Web_Api.Models;
 
 namespace TNC_Web_Api.Controllers
 {
-    [RoutePrefix("api/storage")]
+    [System.Web.Http.RoutePrefix("api/storage")]
     public class FileController : ApiController
     {
 
 
-        [HttpPost]
-        [Route("photoUpload")]
+        [System.Web.Http.HttpPost]
+        [System.Web.Http.Route("photoUpload")]
         [EnableCors(origins: "http://localhost:3000", headers: "*", methods: "*")]
-        public async Task<HttpResponseMessage> Upload()
+        public async Task<ClassificationModel> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
 
             var provider = new MultipartMemoryStreamProvider();
             await Request.Content.ReadAsMultipartAsync(provider);
-
+            var fileName = "unknown";
             try
             {
                 var file = provider.Contents[0];
                 var nameArr = file.Headers.ContentDisposition.Name.Trim('\"').Split('\\');
-                var fileName = nameArr[nameArr.Length - 1];
+                fileName = nameArr[nameArr.Length - 1];
                 var buffer = await file.ReadAsByteArrayAsync();
                 string filePath = "C:\\Users\\zhulian\\Projects\\TNC-Web-Api\\resources\\" + fileName;
                 File.WriteAllBytes(filePath, buffer);
                 Uri uri = this.UploadToAzure(fileName, buffer);
-                return Request.CreateResponse(HttpStatusCode.OK, "Upload succeed, photot azure link: " + uri.ToString());
+                return new ClassificationModel(fileName, uri.ToString());
             }
             catch (Exception exc)
             {
                 Console.WriteLine(exc.Message);
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+                return new ClassificationModel(fileName, "Unknown");
             }
-
         }
 
         const string STORAGE_ACCOUNT = "AZURE_STORAGE_CONNECTION_STRING";
