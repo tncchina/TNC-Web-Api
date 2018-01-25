@@ -12,6 +12,9 @@ using System.Web.Http.Cors;
 using TNC_Web_Api.Models;
 using System.Text;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace TNC_Web_Api.Controllers
 {
@@ -52,15 +55,45 @@ namespace TNC_Web_Api.Controllers
                     var content = new FormUrlEncodedContent(values);
                     content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
                     var response = await client.PostAsync(AIEngineUrl, content);
+                    string prediction = response.Content.ReadAsStringAsync().Result;
+                    prediction = this.ParsePrediction(prediction);
+                    return new ClassificationModel(fileName, uri.ToString(), prediction);
                 }
 
-                return new ClassificationModel(fileName, uri.ToString());
             }
             catch (Exception exc)
             {
                 Console.WriteLine(exc.Message);
-                return new ClassificationModel(fileName, "Unknown");
+                return new ClassificationModel(fileName, "Error: " + exc.Message, "Unknow");
             }
+        }
+
+        private const string PREDICTIONS = "$..Predictions";
+        private const string TASK_ID = "$..TagId";
+        private string ParsePrediction(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return string.Empty;
+            string result = string.Empty;
+            try
+            {
+                JToken token = JToken.Parse(content);
+                if(token != null)
+                {
+                    List<JToken> tagTokens = token.SelectTokens(TASK_ID).ToList();
+                    while(tagTokens != null && tagTokens.Count!=0)
+                    {
+                        tagTokens.First().Parent.Remove();
+                        tagTokens = token.SelectTokens(TASK_ID).ToList();
+                    }
+                    JToken predictionMatch = token.SelectToken(PREDICTIONS);
+                    return predictionMatch.ToString(Formatting.Indented);
+                }
+            }catch(Exception exc)
+            {
+                Console.Error.WriteLine(exc.Message);
+            }
+            return content;
         }
 
         const string STORAGE_ACCOUNT = "AZURE_STORAGE_CONNECTION_STRING";
