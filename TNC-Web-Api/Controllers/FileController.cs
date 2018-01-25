@@ -4,22 +4,21 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure; // Namespace for CloudConfigurationManager
 using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
 using Microsoft.WindowsAzure.Storage.Blob; // Namespace for Blob storage types
-using Microsoft.Azure;
 using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using System.Web.Http.Cors;
-using System.Web.Mvc;
 using TNC_Web_Api.Models;
+using System.Text;
+using System.Collections.Generic;
 
 namespace TNC_Web_Api.Controllers
 {
     [System.Web.Http.RoutePrefix("api/storage")]
     public class FileController : ApiController
     {
-
+        private const string AIEngineUrl = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction/124a8097-fce4-4b00-9b4e-8a89c2d32d63/url?iterationId=152a2f03-5840-46b4-acfe-987a8342b47e";
 
         [System.Web.Http.HttpPost]
         [System.Web.Http.Route("photoUpload")]
@@ -41,6 +40,20 @@ namespace TNC_Web_Api.Controllers
                 string filePath = "C:\\Users\\zhulian\\Projects\\TNC-Web-Api\\resources\\" + fileName;
                 File.WriteAllBytes(filePath, buffer);
                 Uri uri = this.UploadToAzure(fileName, buffer);
+                string photoUrl = uri.ToString();
+
+                using(var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Prediction-Key", "14311bb72e51406a85c43f351a91890b");
+                    var values = new Dictionary<string, string>
+                    {
+                        { "Url", photoUrl }
+                    };
+                    var content = new FormUrlEncodedContent(values);
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
+                    var response = await client.PostAsync(AIEngineUrl, content);
+                }
+
                 return new ClassificationModel(fileName, uri.ToString());
             }
             catch (Exception exc)
