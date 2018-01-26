@@ -24,7 +24,7 @@ namespace TNC_Web_Api.Controllers
 
         [System.Web.Http.HttpPost]
         [System.Web.Http.Route("photoUpload")]
-        [EnableCors(origins: "http://localhost:3000", headers: "*", methods: "*")]
+        [EnableCors(origins: "http://localhost:3000, http://localhost:5000, https://tncaiweb.azurewebsites.net", headers: "*", methods: "*")]
         public async Task<ClassificationModel> Upload()
         {
             if (!Request.Content.IsMimeMultipartContent())
