@@ -10,7 +10,6 @@ using Microsoft.Cognitive.CustomVision.Prediction;
 using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using System.Web.Http.Cors;
 using TNC_Web_Api.Models;
-using System.Text;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,8 +39,8 @@ namespace TNC_Web_Api.Controllers
                 var nameArr = file.Headers.ContentDisposition.Name.Trim('\"').Split('\\');
                 fileName = nameArr[nameArr.Length - 1];
                 var buffer = await file.ReadAsByteArrayAsync();
-                string filePath = "C:\\Users\\zhulian\\Projects\\TNC-Web-Api\\resources\\" + fileName;
-                File.WriteAllBytes(filePath, buffer);
+                //string filePath = "C:\\Users\\zhulian\\Projects\\TNC-Web-Api\\resources\\" + fileName;
+                //File.WriteAllBytes(filePath, buffer);
                 Uri uri = this.UploadToAzure(fileName, buffer);
                 string photoUrl = uri.ToString();
 
