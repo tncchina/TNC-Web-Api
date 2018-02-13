@@ -20,7 +20,7 @@ namespace TNC_Web_Api.Controllers
     [System.Web.Http.RoutePrefix("api/storage")]
     public class FileController : ApiController
     {
-        private const string AIEngineUrl = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction/124a8097-fce4-4b00-9b4e-8a89c2d32d63/url?iterationId=152a2f03-5840-46b4-acfe-987a8342b47e";
+        private const string AIEngineUrl = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.1/Prediction/1e3cbd99-ee8d-4130-b49e-2bf56e63ff10/url?iterationId=86499b85-3dee-4d9e-85af-39eda6f87f43";
 
         [System.Web.Http.HttpPost]
         [System.Web.Http.Route("photoUpload")]
@@ -46,7 +46,7 @@ namespace TNC_Web_Api.Controllers
 
                 using(var client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("Prediction-Key", "14311bb72e51406a85c43f351a91890b");
+                    client.DefaultRequestHeaders.Add("Prediction-Key", "14ec8d8360db4400a54f8a8ff4fe1655");
                     var values = new Dictionary<string, string>
                     {
                         { "Url", photoUrl }
